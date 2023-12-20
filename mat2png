@@ -1,0 +1,44 @@
+from scipy.io import loadmat
+import matplotlib.pyplot as plt
+import os
+
+# MAT格式标签所在文件夹路径
+mat_label_path = '/home/hhong/data/COCO/labels'
+
+# 保存PNG文件的文件夹路径
+png_label_path = '/home/hhong/data/COCO/newlabel'
+
+# 遍历所有MAT标签
+for mat_file_name in os.listdir(mat_label_path):
+    # 构建每一个MAT文件的完整路径
+    mat_file_path = os.path.join(mat_label_path, mat_file_name)
+
+    # 加载数据
+    try:
+        data = loadmat(mat_file_path)
+
+        # 选取PNG图片想要呈现的标注信息
+        #我这里想呈现实例掩膜，所以选取了：inst_map
+        #每个mat标注的信息不完全一致，并非每一个mat文件都包含inst_map
+        #查看mat文件中有哪些标注信息（关键字是哪些）：
+        #代码如下：
+        "import scipy.io as scio 
+         # 读取.mat文件
+         data = scio.loadmat('your_file.mat')
+         # 打印所有变量名称
+         print(list(data.keys()))
+        "
+        image_data = data['inst_map']
+
+        # 构建保存PNG文件的完整路径
+        png_file_name = os.path.splitext(mat_file_name)[0] + '.png'
+        png_file_path = os.path.join(png_label_path, png_file_name)
+
+        # 保存图像为PNG文件
+        plt.imsave(png_file_path, image_data, cmap='gray')  
+
+        print(f"Converted {mat_file_name} to {png_file_name}")
+    except Exception as e:
+        print(f"Error processing {mat_file_name}: {e}")
+
+print("Conversion completed.")
